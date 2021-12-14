@@ -1,2 +1,2 @@
-FROM tomcat:8-jdk17-corretto
+FROM tomcat:8
 COPY target/*.jar /var/lib/jenkins/workspace/bgc_new/target

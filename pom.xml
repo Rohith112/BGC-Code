@@ -71,7 +71,6 @@
 		</plugins>
 	</build>
 <distributionManagement>
-    </repository>
     <snapshotRepository>
       <uniqueVersion>true</uniqueVersion>
       <id>BGC-repo</id>

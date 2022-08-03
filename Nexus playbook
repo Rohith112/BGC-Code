@@ -1,0 +1,29 @@
+---
+
+
+- name: install tomcat server
+  hosts: all
+  become: yes
+
+  tasks: 
+    - name: Install openjdk
+      apt:
+         name: openjdk-11-jre
+
+    - name: download tomcat package
+      get_url:
+        url: ""
+        dest: /usr/local
+
+     - name: extract package
+       unarchive:
+         src: /usr/local/apache-tomcat.tar.gz
+         dst: /usr/local    
+
+     - name: start service
+       shell: /usr/local/apache-tomcat/bin/startup.sh
+       register: serviceStatus
+
+     - name: Print status of service
+       debug:
+         msg: "The service status is {{serviceStatus.stdout}}"

@@ -1,29 +1,39 @@
 ---
+- name: Run the equivalent of "apt-get update"
+  apt:
+    update_cache: yes
 
+- name: Check if java is installed
+  command: java -version
+  register: java_result
+  ignore_errors: True
 
-- name: install tomcat server
-  hosts: all
-  become: yes
+- name: install java8 
+  apt:
+    name: "{{ item }}"
+    state: present 
+  with_items: 
+    - "{{ java_packages }}"
+  when: java_result is failed
 
-  tasks: 
-    - name: Install openjdk
-      apt:
-         name: openjdk-11-jre
+- name: set java env variables 
+  copy:
+    content: | 
+      JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+      JRE_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
+    dest: /etc/environment 
+  when: java_result is failed
 
-    - name: download tomcat package
-      get_url:
-        url: ""
-        dest: /usr/local
+- name: download nexus file 
+  get_url:
+    url: https://download.sonatype.com/nexus/3/latest-unix.tar.gz
+    dest: /opt
 
-     - name: extract package
-       unarchive:
-         src: /usr/local/apache-tomcat.tar.gz
-         dst: /usr/local    
+- name: unarchive tar.gz files 
+  shell: |
+    cd /opt && tar -xvf nexus-3.41.0-01-unix.tar.gz
 
-     - name: start service
-       shell: /usr/local/apache-tomcat/bin/startup.sh
-       register: serviceStatus
+- name: start nexus
+  shell: |
+    sh /opt/nexus-3.41.0-01/bin/nexus start
 
-     - name: Print status of service
-       debug:
-         msg: "The service status is {{serviceStatus.stdout}}"
